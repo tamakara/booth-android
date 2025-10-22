@@ -4,13 +4,19 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -20,12 +26,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.tamakara.booth.data.local.PreferencesManager
 import com.tamakara.booth.ui.navigation.Screen
-import com.tamakara.booth.ui.screens.*
+import com.tamakara.booth.ui.screens.HomeScreen
+import com.tamakara.booth.ui.screens.ItemDetailScreen
+import com.tamakara.booth.ui.screens.LoginScreen
+import com.tamakara.booth.ui.screens.ProfileScreen
+import com.tamakara.booth.ui.screens.PublishScreen
 import com.tamakara.booth.ui.theme.BoothTheme
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,9 +54,7 @@ fun BoothApp() {
     val currentDestination = navBackStackEntry?.destination
 
     val bottomBarScreens = listOf(
-        Screen.Home,
-        Screen.Publish,
-        Screen.Profile
+        Screen.Home, Screen.Publish, Screen.Profile
     )
 
     val showBottomBar = currentDestination?.route in bottomBarScreens.map { it.route }
@@ -59,7 +64,12 @@ fun BoothApp() {
             if (showBottomBar) {
                 NavigationBar {
                     NavigationBarItem(
-                        icon = { Icon(Icons.Default.Home, contentDescription = "首页") },
+                        icon = {
+                            Icon(
+                                Icons.Default.Home,
+                                contentDescription = "首页"
+                            )
+                        },
                         label = { Text("首页") },
                         selected = currentDestination?.hierarchy?.any { it.route == Screen.Home.route } == true,
                         onClick = {
@@ -70,10 +80,14 @@ fun BoothApp() {
                                 launchSingleTop = true
                                 restoreState = true
                             }
-                        }
-                    )
+                        })
                     NavigationBarItem(
-                        icon = { Icon(Icons.Default.Add, contentDescription = "发布") },
+                        icon = {
+                            Icon(
+                                Icons.Default.Add,
+                                contentDescription = "发布"
+                            )
+                        },
                         label = { Text("发布") },
                         selected = currentDestination?.hierarchy?.any { it.route == Screen.Publish.route } == true,
                         onClick = {
@@ -84,10 +98,14 @@ fun BoothApp() {
                                 launchSingleTop = true
                                 restoreState = true
                             }
-                        }
-                    )
+                        })
                     NavigationBarItem(
-                        icon = { Icon(Icons.Default.Person, contentDescription = "我的") },
+                        icon = {
+                            Icon(
+                                Icons.Default.Person,
+                                contentDescription = "我的"
+                            )
+                        },
                         label = { Text("我的") },
                         selected = currentDestination?.hierarchy?.any { it.route == Screen.Profile.route } == true,
                         onClick = {
@@ -98,12 +116,10 @@ fun BoothApp() {
                                 launchSingleTop = true
                                 restoreState = true
                             }
-                        }
-                    )
+                        })
                 }
             }
-        }
-    ) { innerPadding ->
+        }) { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = Screen.Home.route,

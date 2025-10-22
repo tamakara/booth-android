@@ -1,12 +1,23 @@
 package com.tamakara.booth.data.repository
 
-import com.tamakara.booth.data.model.*
+import android.content.Context
+import com.tamakara.booth.data.model.CreateItemRequest
+import com.tamakara.booth.data.model.Item
+import com.tamakara.booth.data.model.ItemPage
+import com.tamakara.booth.data.model.LoginRequest
+import com.tamakara.booth.data.model.RegisterRequest
 import com.tamakara.booth.data.remote.RetrofitClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class BoothRepository {
-    private val api = RetrofitClient.apiService
+class BoothRepository(private val context: Context) {
+    private val prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE)
+
+    init {
+        RetrofitClient.init(context.applicationContext)
+    }
+
+    private val api = RetrofitClient.apiService()
 
     // 用户相关
     suspend fun register(phone: String, password: String): Result<String> = withContext(Dispatchers.IO) {
@@ -20,11 +31,15 @@ class BoothRepository {
 
     suspend fun login(phone: String, password: String): Result<String> = withContext(Dispatchers.IO) {
         try {
-            val userId = api.login(LoginRequest(phone, password))
-            Result.success(userId)
+            val token = api.login(LoginRequest(phone, password))
+            Result.success(token)
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    fun saveToken(token: String) {
+        prefs.edit().putString("auth_token", token).apply()
     }
 
     // 商品相关
@@ -84,4 +99,3 @@ class BoothRepository {
         }
     }
 }
-

@@ -1,6 +1,7 @@
 package com.tamakara.booth.ui.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.tamakara.booth.data.model.CreateItemRequest
 import com.tamakara.booth.data.repository.BoothRepository
@@ -9,8 +10,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class PublishViewModel : ViewModel() {
-    private val repository = BoothRepository()
+class PublishViewModel(application: Application) : AndroidViewModel(application) {
+    private val repository = BoothRepository(application.applicationContext)
 
     private val _publishState = MutableStateFlow<PublishState>(PublishState.Idle)
     val publishState: StateFlow<PublishState> = _publishState.asStateFlow()
@@ -46,4 +47,3 @@ sealed class PublishState {
     data class Success(val itemId: Long) : PublishState()
     data class Error(val message: String) : PublishState()
 }
-

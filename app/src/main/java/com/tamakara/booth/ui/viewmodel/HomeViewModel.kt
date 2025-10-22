@@ -1,6 +1,7 @@
 package com.tamakara.booth.ui.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.tamakara.booth.data.model.Item
 import com.tamakara.booth.data.repository.BoothRepository
@@ -9,8 +10,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class HomeViewModel : ViewModel() {
-    private val repository = BoothRepository()
+class HomeViewModel(application: Application) : AndroidViewModel(application) {
+    private val repository = BoothRepository(application.applicationContext)
 
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
