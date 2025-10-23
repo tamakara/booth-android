@@ -32,6 +32,12 @@ class PreferencesManager(private val context: Context) {
         prefs[PHONE_KEY] ?: ""
     }
 
+    suspend fun saveToken(token: String) {
+        context.dataStore.edit { prefs ->
+            prefs[TOKEN_KEY] = token
+        }
+    }
+
     suspend fun saveUserInfo(userId: Long, token: String, phone: String) {
         context.dataStore.edit { prefs ->
             prefs[USER_ID_KEY] = userId
@@ -46,4 +52,3 @@ class PreferencesManager(private val context: Context) {
         }
     }
 }
-

@@ -40,7 +40,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.tamakara.booth.data.local.PreferencesManager
 import com.tamakara.booth.ui.viewmodel.AuthViewModel
 import com.tamakara.booth.ui.viewmodel.LoginState
 import kotlinx.coroutines.launch
@@ -52,7 +51,6 @@ fun LoginScreen(
     viewModel: AuthViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val prefsManager = remember { PreferencesManager(context) }
     val scope = rememberCoroutineScope()
 
     var phone by remember { mutableStateOf("") }
@@ -65,17 +63,10 @@ fun LoginScreen(
     LaunchedEffect(loginState) {
         when (val state = loginState) {
             is LoginState.Success -> {
-                if (isRegisterMode) {
-                    snackbarHostState.showSnackbar("注册成功")
-                    navController.popBackStack()
-                } else {
-                    // 暂时没有服务端返回的 userId，可在后续通过接口获取再更新
-                    prefsManager.saveUserInfo(-1L, state.token, phone)
-                    snackbarHostState.showSnackbar("登录成功")
-                    navController.popBackStack()
-                }
+                // 登录成功或注册成功后的统一处理：提示并返回
+                snackbarHostState.showSnackbar(if (isRegisterMode) "注册成功" else "登录成功")
+                navController.popBackStack()
             }
-
             is LoginState.Error -> {
                 snackbarHostState.showSnackbar(state.message)
             }

@@ -6,6 +6,7 @@ import com.tamakara.booth.data.model.Item
 import com.tamakara.booth.data.model.ItemPage
 import com.tamakara.booth.data.model.LoginRequest
 import com.tamakara.booth.data.model.RegisterRequest
+import com.tamakara.booth.data.model.User
 import com.tamakara.booth.data.remote.RetrofitClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -33,6 +34,24 @@ class BoothRepository(private val context: Context) {
         try {
             val token = api.login(LoginRequest(phone, password))
             Result.success(token)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getUser(userId: Long): Result<User> = withContext(Dispatchers.IO) {
+        try {
+            val user = api.getUser(userId, null)
+            Result.success(user)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getCurrentUser(): Result<User> = withContext(Dispatchers.IO) {
+        try {
+            val user = api.getUser(null, null)
+            Result.success(user)
         } catch (e: Exception) {
             Result.failure(e)
         }
