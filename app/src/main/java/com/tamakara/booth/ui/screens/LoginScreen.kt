@@ -34,7 +34,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -50,7 +49,6 @@ fun LoginScreen(
     navController: NavController,
     viewModel: AuthViewModel = viewModel()
 ) {
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     var phone by remember { mutableStateOf("") }
@@ -63,11 +61,17 @@ fun LoginScreen(
     LaunchedEffect(loginState) {
         when (val state = loginState) {
             is LoginState.Success -> {
-                // 登录成功或注册成功后的统一处理：提示并返回
-                snackbarHostState.showSnackbar(if (isRegisterMode) "注册成功" else "登录成功")
+                // 通过 SavedStateHandle 通知上一个页面登录成功，然后立刻返回
+                navController.previousBackStackEntry?.savedStateHandle?.set("login_result", true)
+                // 可选：传递提示文案
+                navController.previousBackStackEntry?.savedStateHandle?.set(
+                    "login_message",
+                    if (isRegisterMode) "注册成功" else "登录成功"
+                )
                 navController.popBackStack()
             }
             is LoginState.Error -> {
+                // 仅错误时在本页提示
                 snackbarHostState.showSnackbar(state.message)
             }
 

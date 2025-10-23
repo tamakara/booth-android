@@ -21,6 +21,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -50,10 +52,26 @@ fun ProfileScreen(navController: NavController) {
 
     var userId by remember { mutableStateOf(-1L) }
     var phone by remember { mutableStateOf("") }
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
         userId = prefsManager.userId.first()
         phone = prefsManager.phone.first()
+    }
+
+    // 接收从 LoginScreen 返回的结果：立即显示提示
+    LaunchedEffect(navController.currentBackStackEntry) {
+        val handle = navController.currentBackStackEntry?.savedStateHandle
+        val loginResult = handle?.get<Boolean>("login_result") ?: false
+        if (loginResult) {
+            val message = handle.get<String>("login_message") ?: "登录成功"
+            snackbarHostState.showSnackbar(message)
+            handle.remove<Boolean>("login_result")
+            handle.remove<String>("login_message")
+            // 更新本地展示数据（可选：重新拉取）
+            userId = prefsManager.userId.first()
+            phone = prefsManager.phone.first()
+        }
     }
 
     val isLoggedIn = userId > 0
@@ -67,7 +85,8 @@ fun ProfileScreen(navController: NavController) {
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -138,4 +157,3 @@ fun ProfileScreen(navController: NavController) {
         }
     }
 }
-
